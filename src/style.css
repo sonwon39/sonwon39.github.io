@@ -1,0 +1,120 @@
+/* 사이트 공통 스타일 (다크 테마) */
+
+:root {
+  --bg: #0f1115;
+  --bg-card: #181b22;
+  --text: #e8eaed;
+  --text-dim: #9aa0a8;
+  --accent: #7ec8ff;
+  --border: #2a2e38;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+/* ---- 대문(포트폴리오) ---- */
+
+.hero {
+  padding: 5rem 0 3rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero h1 {
+  font-size: 2.4rem;
+  margin: 0 0 0.5rem;
+}
+
+.hero .tagline {
+  color: var(--text-dim);
+  font-size: 1.15rem;
+  margin: 0;
+}
+
+section {
+  padding: 2.5rem 0;
+}
+
+section h2 {
+  font-size: 1.5rem;
+  margin: 0 0 1rem;
+  color: var(--accent);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.1rem 1.25rem;
+}
+
+.card h3 {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+}
+
+.card p {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.92rem;
+}
+
+.demo-list {
+  padding-left: 1.25rem;
+}
+
+.demo-list li {
+  margin: 0.45rem 0;
+}
+
+footer {
+  border-top: 1px solid var(--border);
+  padding: 2rem 0 3rem;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+}
+
+/* ---- 데모 페이지 ---- */
+
+.demo-page canvas {
+  display: block;
+  width: 100%;
+  background: #000;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.demo-page .back-link {
+  display: inline-block;
+  margin-top: 1.5rem;
+  color: var(--text-dim);
+}

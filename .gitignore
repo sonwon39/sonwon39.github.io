@@ -1,0 +1,13 @@
+# Claude Code - 개인 로컬 설정은 공유하지 않음
+.claude/settings.local.json
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Node
+node_modules/
+dist/
+
+# 검증 스크립트가 만드는 스크린샷
+scripts/*.png
