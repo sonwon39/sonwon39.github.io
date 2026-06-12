@@ -10,10 +10,12 @@ out vec4 outColor;
 // 장면 정의: 점 p에서 가장 가까운 표면까지의 거리를 반환
 float map(vec3 p) {
     // 구: 중심까지 거리 - 반지름. 시간에 따라 위아래로 움직임
-    float sphere = length(p - vec3(0.0, 0.5 + 0.3*sin(iTime), 0.0)) - 0.5;
-    // 바닥 평면: 그냥 y 좌표
-    float ground = p.y + 0.5;
-    return min(sphere, ground);   // min = 두 물체의 합집합
+    float d = 0.1;
+    vec3 center = vec3(0.0, d * sin(iTime), 1.0);
+    float radius = 0.5;
+    float sphere = length(p - center) - radius;
+    
+    return sphere;
 }
 
 // 법선: SDF의 기울기(gradient)를 수치미분으로 구함
@@ -28,11 +30,14 @@ vec3 calcNormal(vec3 p) {
 
 void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     // 픽셀 좌표를 -1~1 범위로 정규화 (종횡비 보정)
-    vec2 uv = (2.0*fragCoord - iResolution.xy) / iResolution.y;
+    float ratio = iResolution.x / iResolution.y;
+    vec2 uv = (fragCoord / iResolution.xy) *2.0 - 1.0;
+    uv.x*=ratio;
+    vec3 lightPos = vec3(10, 10, -3);
 
     // 카메라: 원점에서 약간 뒤, 레이는 픽셀 방향으로
-    vec3 ro = vec3(0.0, 0.5, -3.0);          // ray origin
-    vec3 rd = normalize(vec3(uv, 1.5));       // ray direction
+    vec3 ro = vec3(0.0, 0.0, -3.0);          // ray origin
+    vec3 rd = normalize(vec3(uv,0.0) - ro);       // ray direction
 
     // === Raymarching 루프: 이 셰이더의 심장 ===
     float t = 0.0;
@@ -48,10 +53,10 @@ void mainImage(out vec4 fragColor, in vec2 fragCoord) {
     if (t < 20.0) {
         vec3 p = ro + rd * t;
         vec3 n = calcNormal(p);
-        vec3 lightDir = normalize(vec3(0.8, 0.7, -0.5));
-        float diff = max(dot(n, lightDir), 0.0);          // 램버트 조명
-        col = vec3(1.0, 0.5, 0.3) * diff + vec3(0.05);    // 주황색 물체
-        col = mix(col, vec3(0.6, 0.75, 0.9), 1.0 - exp(-0.02*t*t)); // 거리 안개
+        vec3 L = normalize(lightPos - p);
+        float diff = max(dot(n, L), 0.0);          // 램버트 조명
+        col = vec3(1.0, 1.0, 0.0) * diff;    // 주황색 물체
+        //col = mix(col, vec3(0.6, 0.75, 0.9), 1.0 - exp(-0.02*t*t)); // 거리 안개
     }
 
     fragColor = vec4(pow(col, vec3(0.4545)), 1.0);  // 감마 보정
