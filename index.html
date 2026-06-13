@@ -3,51 +3,94 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- 페이지가 그려지기 전에 테마를 먼저 적용해 깜빡임을 막는다 -->
+    <script>
+      (function () {
+        var t = localStorage.getItem('theme');
+        if (!t)
+          t = matchMedia('(prefers-color-scheme: light)').matches
+            ? 'light'
+            : 'dark';
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
     <title>Hyeongwon Son — Portfolio</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
     <header class="hero">
       <div class="container">
-        <!-- TODO: 이름/소개 문구를 원하는 대로 수정하세요 -->
         <h1>손형원 <small>Hyeongwon Son</small></h1>
-        <p class="tagline">그래픽스 프로그래밍을 공부하며 만든 것들을 모아두는 곳입니다.</p>
+        <p class="tagline">
+          공부한 것을 직접 구현해 보며 기록한 블로그
+        </p>
       </div>
     </header>
 
     <main class="container">
       <section id="about">
         <h2>About</h2>
-        <!-- TODO: 자기소개를 작성하세요 -->
         <p>
-          실시간 렌더링과 그래픽스에 관심이 많습니다. 이 사이트는 직접 만든
-          프로젝트와 WebGL 데모를 정리하는 포트폴리오입니다.
+          C++로 그래픽스를 다뤄 왔고, 실시간 렌더링과 GPU 프로그래밍, 그리고
+          AI에 관심이 많습니다. 논문을 읽고 엔진과 셰이더로 직접 구현해 보면서
+          동작 원리를 끝까지 파고드는 과정을 가장 좋아합니다.
+        </p>
+        <p>
+          이 블로그는 그렇게 만든 결과물을 한곳에 모아 둔 포트폴리오입니다.
+          <a href="#projects">Projects</a>에는 직접 만든 프로젝트들을, 
+          <a href="#webgl">WebGL Playground</a>에는 브라우저에서 바로
+          돌려볼 수 있는 작은 렌더링 실험들을 정리해 두었습니다.
         </p>
       </section>
 
       <section id="projects">
         <h2>Projects</h2>
+        <!-- 카드 하나 = 프로젝트 하나. 클릭하면 상세 페이지로 이동.
+             새 프로젝트는 projects/<이름>/ 폴더를 만들고 여기에 카드를 추가한다. -->
         <div class="card-grid">
-          <!-- TODO: 실제 프로젝트로 교체하세요. 카드 하나 = 프로젝트 하나 -->
-          <article class="card">
-            <h3>프로젝트 이름</h3>
-            <p>한두 줄 설명. 사용 기술, 역할, 링크 등을 적습니다.</p>
-          </article>
-          <article class="card">
-            <h3>프로젝트 이름</h3>
-            <p>한두 줄 설명.</p>
-          </article>
+          <a class="project-card" href="/projects/sengine/">
+            <img
+              src="/projects/sengine/pbr.jpg"
+              alt="SEngine — DirectX 12 그래픽스 엔진"
+              loading="lazy"
+            />
+            <div class="project-card__body">
+              <h3>SEngine — DirectX 12 엔진</h3>
+              <p>물리 기반 렌더링(PBR) · Stable Fluids 유체 시뮬레이션</p>
+            </div>
+          </a>
         </div>
       </section>
 
       <section id="webgl">
         <h2>WebGL Playground</h2>
-        <p>브라우저에서 바로 실행되는 WebGL 데모입니다. 새 데모를 만들면 여기에 링크를 추가합니다.</p>
-        <ol class="demo-list">
-          <li><a href="demos/01-triangle/">삼각형 그리기</a></li>
-          <li><a href="demos/02-sphere/">레이마칭 구</a></li>
-          <li><a href="demos/03-pbr/">pbr 렌더링</a></li>
-        </ol>
+        <p>
+          브라우저에서 바로 실행되는 WebGL2 렌더링 데모
+        </p>
+        <!-- 새 데모: public/demos/<이름>.jpg 썸네일을 넣고 카드를 추가한다 -->
+        <div class="card-grid">
+          <a class="project-card" href="demos/01-triangle/">
+            <img src="/demos/01-triangle.jpg" alt="삼각형 그리기 데모" loading="lazy" />
+            <div class="project-card__body">
+              <h3>삼각형 그리기</h3>
+              <p>WebGL2 기본 파이프라인</p>
+            </div>
+          </a>
+          <a class="project-card" href="demos/02-sphere/">
+            <img src="/demos/02-sphere.jpg" alt="레이마칭 구 데모" loading="lazy" />
+            <div class="project-card__body">
+              <h3>레이마칭 구</h3>
+              <p>SDF 레이마칭 · 거리 함수</p>
+            </div>
+          </a>
+          <a class="project-card" href="demos/03-pbr/">
+            <img src="/demos/03-pbr.jpg" alt="PBR 렌더링 데모" loading="lazy" />
+            <div class="project-card__body">
+              <h3>PBR 렌더링</h3>
+              <p>Cook-Torrance BRDF</p>
+            </div>
+          </a>
+        </div>
       </section>
 
       <section id="contact">
@@ -62,5 +105,6 @@
     <footer>
       <div class="container">© 2026 Hyeongwon Son · Built with Vite + WebGL</div>
     </footer>
+    <script type="module" src="/src/theme.ts"></script>
   </body>
 </html>

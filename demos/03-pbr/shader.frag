@@ -102,7 +102,9 @@ void main(){
     
     vec3 lo = vec3(0.0, 5.0, 0.0);
     float lightR = 5.0;
-    vec3 lightPos = lo + lightR * vec3(cos(iTime),0,sin(iTime));
+    float init = 10.3f;
+    vec3 lightPos = lo + lightR * vec3(cos(init),0,sin(init));
+    //vec3 lightPos = lo + lightR * vec3(cos(init+ iTime),0,sin(init+ iTime));
     // ray 원점과 방향 벡터
     vec3 ro = vec3(0,0,-3.0);
     vec3 rd = normalize(vec3(uv,0) - ro);

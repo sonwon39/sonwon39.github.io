@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "thumbs": "node scripts/gen-thumbnails.mjs"
   },
   "devDependencies": {
     "@types/node": "^25.9.3",

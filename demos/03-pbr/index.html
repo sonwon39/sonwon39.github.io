@@ -3,6 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        var t = localStorage.getItem('theme');
+        if (!t)
+          t = matchMedia('(prefers-color-scheme: light)').matches
+            ? 'light'
+            : 'dark';
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
     <title>03. pbr</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
@@ -15,5 +25,6 @@
       </section>
     </main>
     <script type="module" src="./main.ts"></script>
+    <script type="module" src="/src/theme.ts"></script>
   </body>
 </html>
