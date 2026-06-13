@@ -8,6 +8,3 @@ Thumbs.db
 # Node
 node_modules/
 dist/
-
-# 검증 스크립트가 만드는 스크린샷
-scripts/*.png
