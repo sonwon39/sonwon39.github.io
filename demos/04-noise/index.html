@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        var t = localStorage.getItem('theme');
+        if (!t)
+          t = matchMedia('(prefers-color-scheme: light)').matches
+            ? 'light'
+            : 'dark';
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
+    <title>04. noise</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body class="demo-page">
+    <main class="container">
+      <section>
+        <h2>04. noise</h2>
+        <canvas id="gl-canvas"></canvas>
+        <a class="back-link" href="../../">← 포트폴리오로 돌아가기</a>
+      </section>
+    </main>
+    <script type="module" src="./main.ts"></script>
+    <script type="module" src="/src/theme.ts"></script>
+  </body>
+</html>
