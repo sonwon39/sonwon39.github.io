@@ -101,6 +101,11 @@ section h2 {
   color: var(--accent);
 }
 
+/* 섹션 직속 본문 문단 — 브라우저 기본 1em 간격이 line-height(1.65)와 겹쳐 과해 보이는 걸 완화 */
+section > p {
+  margin: 0.55em 0;
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -311,6 +316,32 @@ footer {
   order: 2;
 }
 
+/* 콘텐츠 양이 비대칭일 때(예: 코드 + 긴 설명, 이미지 여러 장 + 짧은 설명)
+   2열 그리드 대신 세로로 적층한다 */
+.feature--stack {
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+/* 한 미디어 슬롯에 여러 이미지를 가로로 나란히 배치 */
+.feature__media--row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.feature__media--row img + img {
+  margin-top: 0;
+}
+
+/* 원본 비율이 달라도(예: 정사각 + 16:9) 동일한 프레임에 letterbox로 통일.
+   contain이라 내용 손실 없이 배경(검정)으로 빈 자리만 채운다. */
+.feature__media--row img {
+  aspect-ratio: 16 / 9;
+  object-fit: contain;
+  object-position: center;
+}
+
 @media (max-width: 620px) {
   .feature {
     grid-template-columns: 1fr;
@@ -318,6 +349,44 @@ footer {
   .feature--reverse .feature__media {
     order: 0;
   }
+  .feature__media--row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}
+
+/* ---- 상세 페이지: 트랙 네비 (상단 미리보기) ---- */
+
+.track-nav {
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  margin-top: 1.5rem;
+}
+
+/* ---- 상세 페이지: 코드 블록 ---- */
+
+.code-block {
+  margin: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem 1.1rem;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--text);
+  overflow-x: auto;
+}
+
+.code-block code {
+  font-family: ui-monospace, "SF Mono", Consolas, "Courier New", monospace;
+}
+
+/* 앵커 점프 시 헤더 위에 약간 여유 — 추후 sticky 헤더 도입 대비 */
+section[id] {
+  scroll-margin-top: 1rem;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 /* ---- 데모 / 상세 공통 ---- */

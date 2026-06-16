@@ -18,8 +18,8 @@
   </head>
   <body>
     <main class="container">
+      <!-- ===== 헤더 ===== -->
       <section>
-        <!-- ===== 헤더 ===== -->
         <h1>SEngine — DirectX 12 그래픽스 엔진</h1>
         <p class="tagline" style="color: var(--text-dim)">
           논문 구현 중심의 실시간 렌더링 / 시뮬레이션 엔진
@@ -39,12 +39,40 @@
         </p>
         <p>
           그래픽스 논문을 직접 구현하며 만든 DirectX 12 기반 실시간 렌더링·시뮬레이션
-          엔진입니다. 렌더 파이프라인, 리소스/디스크립터 관리, 컴퓨트 셰이더 디스패치까지
-          엔진 코드를 처음부터 작성했고, 그 위에서 물리 기반 렌더링과 유체 시뮬레이션을
-          구현했습니다.
+          엔진입니다.
+        </p>
+        <p>
+          rendering pipeline부터 resource 버퍼 생성 및 관리와 같은 
+          엔진 코드를 처음부터 작성했고, 그 위에서 렌더링, 시뮬레이션,
+          그리고 컴포넌트 기반 게임엔진까지 세 트랙으로 발전시켰습니다.
         </p>
 
-        <!-- ===== 기능 1: PBR ===== -->
+        <!-- ===== 트랙 미리보기 (앵커 네비) ===== -->
+        <div class="card-grid track-nav">
+          <a class="project-card" href="#rendering">
+            <div class="project-card__body">
+              <h3>렌더링</h3>
+              <p>PBR · IBL</p>
+            </div>
+          </a>
+          <a class="project-card" href="#simulation">
+            <div class="project-card__body">
+              <h3>시뮬레이션</h3>
+              <p>Stable Fluids</p>
+            </div>
+          </a>
+          <a class="project-card" href="#core">
+            <div class="project-card__body">
+              <h3>엔진 코어</h3>
+              <p>Actor · Component</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <!-- ===== 트랙 1: 렌더링 ===== -->
+      <section id="rendering">
+        <h2>렌더링</h2>
         <div class="feature">
           <div class="feature__media">
             <img src="/projects/sengine/pbr.jpg" alt="SEngine PBR 렌더링" />
@@ -52,16 +80,19 @@
           <div class="feature__text">
             <h3>물리 기반 렌더링 (PBR)</h3>
             <p>
-              Cook-Torrance BRDF(GGX 분포, Smith 가시성, Schlick 프레넬)와
-              metallic·roughness 워크플로를 구현했습니다. 환경 맵 기반 조명(IBL)으로
-              금속 표면이 주변 환경을 반사합니다.
+              Cook-Torrance BRDF(GGX distribution, Smith visibility, Schlick Fresnel)와
+              metallic·roughness 워크플로를 구현했습니다. 여기에 환경 맵과 BRDF LUT를 이용한
+              IBL(image-based lighting)을 추가해 주변 환경맵에 의한 조명까지 반영했습니다.
             </p>
           </div>
         </div>
+      </section>
 
-        <!-- ===== 기능 2: Stable Fluids ===== -->
-        <div class="feature feature--reverse">
-          <div class="feature__media">
+      <!-- ===== 트랙 2: 시뮬레이션 ===== -->
+      <section id="simulation">
+        <h2>시뮬레이션</h2>
+        <div class="feature feature--stack">
+          <div class="feature__media feature__media--row">
             <img
               src="/projects/sengine/fluids.jpg"
               alt="SEngine Stable Fluids 유체 시뮬레이션"
@@ -74,11 +105,52 @@
           <div class="feature__text">
             <h3>Stable Fluids 유체 시뮬레이션</h3>
             <p>
-              반-라그랑주(semi-Lagrangian) 이류와 압력 투영으로 비압축 조건을 만족시키는
-              Stable Fluids를 GPU 컴퓨트 셰이더로 구현했습니다. 여기에 와도 컨파인먼트
-              (vorticity confinement)를 추가해, 수치 소산으로 뭉개지던 소용돌이를 되살려
-              더 디테일한 흐름을 만들었습니다. RGB 염료(dye)를 속도장에 따라 이류시켜
-              유체의 흐름과 혼합을 시각화합니다.
+              마우스를 이용해 밀도장과 속도장을 추가해준 뒤 semi-Lagrangian advection과
+              pressure projection으로 비압축 조건을 만족시키는 Stable Fluids를 GPU 컴퓨트 셰이더로 구현했습니다.
+              여기에 vorticity confinement를 추가해, 수치 소산으로 사라진 소용돌이 디테일을 되살렸습니다.
+              최종적으로 밀도장을 RGB 색으로 렌더링해주었습니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 트랙 3: 엔진 코어 ===== -->
+      <section id="core">
+        <h2>엔진 코어</h2>
+        <div class="feature feature--stack">
+          <div class="feature__media">
+<pre class="code-block"><code>// 액터 = 컴포넌트의 합성
+auto player = std::make_shared&lt;Actor&gt;("Player");
+auto mesh   = std::make_shared&lt;SkinnedMeshComponent&gt;(player.get());
+auto cam    = std::make_shared&lt;CameraComponent&gt;(player.get());
+auto col    = std::make_shared&lt;CollisionComponent&gt;(player.get());
+
+player-&gt;SetRootComponent(mesh); // 루트는 메시
+mesh-&gt;Attach(cam);              // 카메라를 자식으로 (3인칭)
+mesh-&gt;Attach(col);              // 콜리전도 자식으로
+
+player-&gt;OnRegister();           // 트리 전체에 등록 시점 알림</code></pre>
+          </div>
+          <div class="feature__text">
+            <h3>Actor / Component 기반 씬 구성</h3>
+            <p>
+              언리얼 엔진의 Actor 모델을 참고해, 씬에 배치되는 모든 오브젝트를
+              Actor와 여러 ActorComponent의 합성으로 표현합니다. Actor 자체는
+              트랜스폼을 갖지 않고 루트 SceneComponent에 위임하며, 기능이 필요할 때마다
+              컴포넌트를 하나 붙이는 방식으로 확장됩니다.
+            </p>
+            <p>
+              컴포넌트는 책임이 점진적으로 늘어나는 계층으로 설계했습니다.
+              <strong>ActorComponent</strong>(소유 Actor + Tick 인터페이스)에서 출발해,
+              <strong>SceneComponent</strong>가 localTransform과 부모/자식 계층을 더하고,
+              <strong>PrimitiveComponent</strong>가 가시성·PSO/텍스처·per-primitive constant buffer·PhysX
+              트랜스폼 동기화를 얹습니다. 그 위에 StaticMesh / SkinnedMesh / Camera /
+              Light / Collision Component가 구체 역할을 맡습니다.
+            </p>
+            <p>
+              트랜스폼은 localTransform(부모 기준)을 단일 원본으로 두고, 부모의 월드
+              트랜스폼과 합쳐 worldMatrix를 산출합니다. 변경 시 자식들에게 자동
+              전파되어, 계층 어디서 트랜스폼을 바꿔도 일관된 월드 좌표가 유지됩니다.
             </p>
           </div>
         </div>
