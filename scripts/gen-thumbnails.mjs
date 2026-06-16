@@ -4,7 +4,10 @@
 // 하는 일:
 //   1. demos/ 아래의 모든 데모 폴더를 자동으로 찾는다.
 //   2. Vite 개발 서버를 코드로 직접 띄운다 (포트 자동 할당, 끝나면 자동 종료).
-//   3. 헤드리스 크롬으로 각 데모를 열어 #gl-canvas만 캡처한다.
+//   3. 헤드리스 크롬으로 각 데모를 열어 캡처 대상을 찾는다.
+//      - [data-thumb] 속성이 붙은 요소가 있으면 그것을 우선 캡처 (다중 캔버스
+//        데모가 "이게 대표"라고 명시 가능)
+//      - 없으면 #gl-canvas를 캡처 (단일 캔버스 데모의 기본 동작)
 //   4. public/demos/<데모이름>.jpg 로 저장한다.
 //
 // 새 데모를 추가했다면 이 스크립트만 다시 돌리면 썸네일이 갱신된다.
@@ -67,9 +70,10 @@ for (const name of demos) {
       timeout: 15000,
     });
     await new Promise((r) => setTimeout(r, 800)); // 애니메이션 몇 프레임 진행
-    const el = await page.$('#gl-canvas');
+    // 캡처 대상 선택: data-thumb > #gl-canvas 순으로 폴백
+    const el = (await page.$('[data-thumb]')) ?? (await page.$('#gl-canvas'));
     if (!el) {
-      console.log(`⚠ ${name}: #gl-canvas 없음 — 건너뜀`);
+      console.log(`⚠ ${name}: [data-thumb] 또는 #gl-canvas 없음 — 건너뜀`);
     } else {
       await el.screenshot({
         path: resolve(outDir, `${name}.jpg`),

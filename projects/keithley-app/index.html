@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        var t = localStorage.getItem('theme');
+        if (!t)
+          t = matchMedia('(prefers-color-scheme: light)').matches
+            ? 'light'
+            : 'dark';
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
+    <title>KeithleyApp — 2D 반도체 I-V 측정 시스템</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <!-- ===== 헤더 ===== -->
+      <section>
+        <h1>KeithleyApp — 2D 반도체 I-V 측정 시스템</h1>
+        <p class="tagline" style="color: var(--text-dim)">
+          박리한 MoS2 등 2D 물질의 다이오드 특성 측정을 위한 PyQt6 데스크톱 앱
+        </p>
+
+        <ul class="tags">
+          <li>Python</li>
+          <li>PyQt6</li>
+          <li>pyqtgraph</li>
+          <li>pyvisa</li>
+          <li>Keithley SMU</li>
+          <li>Semiconductor Characterization</li>
+        </ul>
+
+        <p class="project__links">
+          <a href="https://github.com/Soku3D/KeithleyApp">GitHub →</a>
+        </p>
+        <p>
+          테이프를 이용한 박리 공정으로 분리한 얇은 MoS2, WSe2 등 2D 반도체의 전압·전류 특성을
+          측정해 다이오드 거동을 분석하기 위해 만든 계측 자동화 앱입니다.
+          pyvisa로 Keithley source-measure unit을 제어하여 voltage sweep을 자동 실행하고,
+          결과를 실시간 I-V 곡선으로 그래프에 띄웁니다. Keithley 2420과 2635B 두 모델에서 사용 가능하도록 하기 위해
+          모두 동일한 인터페이스로 추상화했습니다.
+        </p>
+      </section>
+
+      <!-- ===== 기능: 측정 자동화 + 실시간 시각화 ===== -->
+      <section>
+        <h2>측정 자동화 + 실시간 시각화</h2>
+        <div class="feature">
+          <div class="feature__media">
+            <img
+              src="/projects/keithley-app/graphScreen.png"
+              alt="KeithleyApp UI 스크린샷 — 실시간 I-V 그래프"
+            />
+          </div>
+          <div class="feature__text">
+            <h3>핵심 기능</h3>
+            <p>
+              측정 루틴은 QThread로 분리해 UI 응답성을 유지하고,
+              <strong>linear sweep · bias · step · dual sweep</strong> 네 가지 모드를
+              지원합니다. dual sweep으로 정·역방향을 연속 측정하면 hysteresis까지
+              한 번에 관찰할 수 있어, 2D 물질에서 자주 나타나는 trap 거동을 같은
+              실행에서 확인합니다.
+            </p>
+            <p>
+              실시간 그래프는 pyqtgraph로 그리고, 같은 sweep을 선형 스케일과
+              로그 스케일로 동시에 plot합니다. 측정 중 데이터는 Qt signal로
+              UI 스레드에 전달되어 한 점이 찍힐 때마다 즉시 화면에 반영됩니다.
+            </p>
+            <p>
+              voltage·current range, current limit, source delay 같은
+              SMU 파라미터는 GUI에서 바로 설정할 수 있고, 각 측정 종료 후
+              결과는 CSV로 저장되어 분석 단계로 넘어갑니다.
+            </p>
+          </div>
+        </div>
+
+        <a class="back-link" href="/">← 포트폴리오로 돌아가기</a>
+      </section>
+    </main>
+    <script type="module" src="/src/theme.ts"></script>
+  </body>
+</html>

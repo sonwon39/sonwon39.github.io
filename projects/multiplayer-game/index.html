@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        var t = localStorage.getItem('theme');
+        if (!t)
+          t = matchMedia('(prefers-color-scheme: light)').matches
+            ? 'light'
+            : 'dark';
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
+    <title>MultiPlayerGame — Unreal TPS + Steam 멀티플레이</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <main class="container">
+      <!-- ===== 헤더 ===== -->
+      <section>
+        <h1>MultiPlayerGame — Unreal TPS + Steam 멀티플레이</h1>
+        <p class="tagline" style="color: var(--text-dim)">
+          언리얼 엔진 C++로 만든 3인칭 슈터와 Steam OSS 기반 세션 플러그인
+        </p>
+
+        <ul class="tags">
+          <li>C++</li>
+          <li>Unreal Engine 5</li>
+          <li>Gameplay Ability System</li>
+          <li>OnlineSubsystem Steam</li>
+          <li>UMG</li>
+        </ul>
+
+        <p class="project__links">
+          <a href="https://github.com/Soku3D/MultiPlayerGame">GitHub →</a>
+        </p>
+        <p>
+          언리얼 엔진 기반의 C++ TPS 게임과, Steam을 통해 세션을 만들고/찾고/참가할
+          수 있게 해주는 자체 멀티플레이 플러그인을 함께 만든 프로젝트입니다.
+          게임 쪽은 어빌리티·어트리뷰트·이펙트로 모듈화한 액션 시스템 위에
+          캐릭터·웨폰·HUD 같은 UE 표준 프레임워크를 얹어 흐름을 짰고, 멀티플레이
+          쪽은 IOnlineSubsystem(Steam) 위에 비동기 세션 흐름을 감싼
+          UGameInstanceSubsystem 플러그인으로 분리했습니다.
+        </p>
+      </section>
+
+      <!-- ===== 트랙 1: 게임 시스템 ===== -->
+      <section>
+        <h2>게임 시스템 (Unreal C++ TPS)</h2>
+        <div class="feature feature--stack">
+          <div class="feature__media">
+<pre class="code-block"><code>// TPS/Source 시스템 카테고리
+TPS/
+├── Ability/  Attribute/  GameplayEffect/  Cue/     ← GAS 스타일 액션 시스템
+├── Character/  Pawn/  Weapon/                      ← 캐릭터·전투
+├── GameMode/  PlayerController/  PlayerState/ HUD/ ← UE 표준 게임 프레임워크
+├── AI/                                             ← 적 AI
+├── AnimNotifyStates/                               ← 애니메이션 이벤트
+├── Actor/  ActorComponent/                         ← 재사용 컴포넌트
+├── Save/                                           ← 진행 저장
+└── Interface/  Structure/  Enum/  Payload/         ← 공용 타입</code></pre>
+          </div>
+          <div class="feature__text">
+            <h3>GAS 스타일 모듈화 + UE 표준 프레임워크</h3>
+            <p>
+              GAS(Gameplay Ability System) 흐름을 본떠
+              <strong>Ability · Attribute · GameplayEffect · Cue</strong>로 액션 시스템을
+              모듈화했습니다. 새 스킬이 필요하면 Ability를 하나 추가하고, 변경되는
+              스탯은 Attribute, 적용 규칙은 GameplayEffect, 이펙트/사운드 같은
+              연출은 Cue로 분리됩니다.
+            </p>
+            <p>
+              그 위에 <strong>Character · Pawn · Weapon · PlayerController ·
+              PlayerState · GameMode · HUD</strong> 등 UE 표준 프레임워크 클래스를
+              얹어 게임 흐름과 입력·UI를 연결했습니다. AnimNotifyStates로 공격
+              판정·발사 타이밍 같은 애니메이션 이벤트를 처리하고,
+              Interface · Structure · Enum · Payload로 시스템 사이 결합을
+              줄였습니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== 트랙 2: 멀티플레이 플러그인 ===== -->
+      <section>
+        <h2>멀티플레이 플러그인 (Steam OSS)</h2>
+        <div class="feature feature--stack">
+          <div class="feature__media">
+<pre class="code-block"><code>// 게임 인스턴스 서브시스템 — 게임 전역에서 한 번만 생성됨
+UCLASS()
+class UMultiplaySessionsSubsystem : public UGameInstanceSubsystem
+{
+public:
+    void CreateSession();
+    void FindSessions();
+    void JoinSession(FOnlineSessionSearchResult& Result);
+
+    // UI 위젯이 바인딩하는 비동기 완료 델리게이트
+    FMultiplayerOnCreateSessionComplete MultiplayerOnCreateSessionComplete;
+    FMultiplayerOnFindSessionsComplete  MultiplayerOnFindSessionsComplete;
+    FMultiplayerOnJoinSessionComplete   MultiplayerOnJoinSessionComplete;
+
+private:
+    IOnlineSessionPtr SessionInterface; // Steam(또는 NULL=LAN fallback)
+};</code></pre>
+          </div>
+          <div class="feature__text">
+            <h3>세션 만들기 · 찾기 · 참가하기 한 번에</h3>
+            <p>
+              세션 흐름 전체를 게임 인스턴스 서브시스템으로 감싼 자체 플러그인입니다.
+              IOnlineSubsystem(Steam) 위에 OnCreateSessionComplete · OnFindSessionsComplete ·
+              OnJoinSessionComplete 콜백을 한 번 등록해두고, 결과를 다시 자체
+              멀티캐스트 델리게이트로 브로드캐스트해 UMG 위젯이 깔끔하게 바인딩하도록
+              했습니다.
+            </p>
+            <p>
+              세션 설정은 <strong>lobbies 모드 + presence 광고</strong>로 친구창에서도
+              방이 보이도록 했고, Steam OSS가 활성화되지 않은 환경(NULL OSS)에서는
+              <strong>LAN 매치로 자동 폴백</strong>합니다. 호스팅 시에는
+              ServerTravel("/Game/Maps/Lobby?listen")로 listen server를 띄워 클라이언트가
+              그대로 합류합니다.
+            </p>
+            <p>
+              플러그인 안에는 UMG 위젯도 함께 포함됩니다 —
+              <strong>Menu</strong>(메인/호스트/참가/설정), <strong>LobbyGameMenu</strong>,
+              <strong>InGameMenu</strong>가 WidgetSwitcher로 화면을 전환하면서
+              서브시스템 콜백에 반응해 동작합니다.
+            </p>
+          </div>
+        </div>
+
+        <a class="back-link" href="/">← 포트폴리오로 돌아가기</a>
+      </section>
+    </main>
+    <script type="module" src="/src/theme.ts"></script>
+  </body>
+</html>

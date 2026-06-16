@@ -38,7 +38,7 @@
         <p>
           이 블로그는 그렇게 만든 결과물을 한곳에 모아 둔 포트폴리오입니다.
           <a href="#projects">Projects</a>에는 직접 만든 프로젝트들을, 
-          <a href="#webgl">WebGL Playground</a>에는 브라우저에서 바로
+          <a href="#webgl">WebGL</a>에는 브라우저에서 바로
           돌려볼 수 있는 작은 렌더링 실험들을 정리해 두었습니다.
         </p>
       </section>
@@ -59,39 +59,44 @@
               <p>물리 기반 렌더링(PBR) · Stable Fluids 유체 시뮬레이션</p>
             </div>
           </a>
+          <a class="project-card" href="/projects/keithley-app/">
+            <img
+              src="/projects/keithley-app/graphScreen.png"
+              alt="KeithleyApp — 2D 반도체 I-V 측정 시스템"
+              loading="lazy"
+            />
+            <div class="project-card__body">
+              <h3>KeithleyApp — 2D 반도체 I-V 측정</h3>
+              <p>Keithley SMU · PyQt6 · 다이오드 특성 분석</p>
+            </div>
+          </a>
+          <a class="project-card" href="/projects/multiplayer-game/">
+            <!-- 게임 스크린샷이 생기면 <img>로 교체 -->
+            <div class="project-card__placeholder">Unreal Engine · C++</div>
+            <div class="project-card__body">
+              <h3>MultiPlayerGame — Unreal TPS</h3>
+              <p>Steam OSS 세션 플러그인 · UMG 메뉴 플로우</p>
+            </div>
+          </a>
         </div>
       </section>
 
       <section id="webgl">
-        <h2>WebGL Playground</h2>
+        <h2>WebGL</h2>
         <p>
           브라우저에서 바로 실행되는 WebGL2 렌더링 데모
         </p>
         <!-- 새 데모: public/demos/<이름>.jpg 썸네일을 넣고 카드를 추가한다 -->
         <div class="card-grid">
-          <a class="project-card" href="demos/01-triangle/">
-            <img src="/demos/01-triangle.jpg" alt="삼각형 그리기" loading="lazy" />
-            <div class="project-card__body">
-              <h3>삼각형 그리기</h3>
-              <p>WebGL2 기본 파이프라인</p>
-            </div>
-          </a>
-          <a class="project-card" href="demos/02-sphere/">
-            <img src="/demos/02-sphere.jpg" alt="레이마칭 구" loading="lazy" />
-            <div class="project-card__body">
-              <h3>레이마칭 구</h3>
-              <p>SDF 레이마칭 · 거리 함수</p>
-            </div>
-          </a>
-          <a class="project-card" href="demos/03-pbr/">
-            <img src="/demos/03-pbr.jpg" alt="PBR 렌더링" loading="lazy" />
+          <a class="project-card" href="demos/01-pbr/">
+            <img src="/demos/01-pbr.jpg" alt="PBR 렌더링" loading="lazy" />
             <div class="project-card__body">
               <h3>PBR 렌더링</h3>
               <p>Cook-Torrance BRDF</p>
             </div>
           </a>
-          <a class="project-card" href="demos/04-noise/">
-            <img src="/demos/04-noise.jpg" alt="perlin noise" loading="lazy" />
+          <a class="project-card" href="demos/02-noise/">
+            <img src="/demos/02-noise.jpg" alt="perlin noise" loading="lazy" />
             <div class="project-card__body">
               <h3>Noise 생성</h3>
               <p>Random 함수를 이용한 noise 생성</p>
@@ -104,7 +109,7 @@
         <h2>Contact</h2>
         <p>
           GitHub: <a href="https://github.com/sonwon39">github.com/sonwon39</a><br />
-          Email: <a href="mailto:hyeongwonson1@gmail.com">hyeongwonson1@gmail.com</a>
+          Email: <a href="mailto:sonwon39@naver.com">sonwon39@naver.com</a>
         </p>
       </section>
     </main>

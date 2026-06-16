@@ -1,0 +1,5 @@
+node_modules
+dist
+public/demos
+public/projects
+package-lock.json

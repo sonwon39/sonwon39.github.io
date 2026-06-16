@@ -13,7 +13,7 @@
         document.documentElement.dataset.theme = t;
       })();
     </script>
-    <title>04. noise</title>
+    <title>02. noise</title>
     <link rel="stylesheet" href="/src/style.css" />
     <style>
       /* 이 데모는 노이즈를 여러 개 나열하므로 본문 폭을 넓게 쓴다
@@ -52,7 +52,7 @@
   <body class="demo-page">
     <main class="container">
       <section>
-        <h2>04. Noise</h2>
+        <h2>02. Noise</h2>
         <p>
           여러 종류의 노이즈
         </p>
@@ -76,7 +76,8 @@
             </figcaption>
           </figure>
           <figure>
-            <canvas id="gl-canvas3"></canvas>
+            <!-- data-thumb: 이 캔버스를 데모의 대표 썸네일로 사용 (npm run thumbs) -->
+            <canvas id="gl-canvas3" data-thumb></canvas>
             <figcaption>
               <b>Gradient Noise</b> — gradient를 이용한 perlin 노이즈
             </figcaption>

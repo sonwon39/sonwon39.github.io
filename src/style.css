@@ -264,6 +264,20 @@ footer {
   background: #000;
 }
 
+/* 스크린샷이 아직 없는 프로젝트의 카드 자리 — 이미지와 같은 비율을 유지 */
+.project-card__placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1d2a 0%, #2a2e44 100%);
+  color: #c8cdd6;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+
 .project-card__body {
   padding: 0.9rem 1.1rem 1.1rem;
 }
