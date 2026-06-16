@@ -15,12 +15,73 @@
     </script>
     <title>04. noise</title>
     <link rel="stylesheet" href="/src/style.css" />
+    <style>
+      /* 이 데모는 노이즈를 여러 개 나열하므로 본문 폭을 넓게 쓴다
+         (사이트 공통 .container의 max-width: 860px을 이 페이지에서만 덮어씀) */
+      .container {
+        max-width: 1120px;
+      }
+      /* 노이즈 종류별 캔버스를 격자로 배치.
+         최소 230px 열을 폭에 들어가는 만큼 자동 생성 → 창 크기에 따라 1~4열 */
+      .noise-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 1.4rem;
+      }
+      .noise-grid figure {
+        margin: 0;
+      }
+      .noise-grid canvas {
+        display: block;
+        width: 100%;
+        aspect-ratio: 1 / 1; /* 표시 영역을 정사각형으로 고정 */
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: #000;
+      }
+      .noise-grid figcaption {
+        margin-top: 0.5rem;
+        color: var(--text-dim);
+        font-size: 0.9rem;
+      }
+      .noise-grid figcaption b {
+        color: var(--text);
+      }
+    </style>
   </head>
   <body class="demo-page">
     <main class="container">
       <section>
-        <h2>04. noise</h2>
-        <canvas id="gl-canvas"></canvas>
+        <h2>04. Noise</h2>
+        <p>
+          여러 종류의 노이즈
+        </p>
+        <div class="noise-grid">
+          <figure>
+            <canvas id="gl-canvas0"></canvas>
+            <figcaption>
+              <b>Random Noise</b> - 랜덤 노이즈
+            </figcaption>
+          </figure>
+          <figure>
+            <canvas id="gl-canvas1"></canvas>
+            <figcaption>
+              <b>Mosaic Noise</b> — 모자이크 노이즈
+            </figcaption>
+          </figure>
+          <figure>
+            <canvas id="gl-canvas2"></canvas>
+            <figcaption>
+              <b>Value Noise</b> — 2차원 격자 보간을 이용한 Value 노이즈
+            </figcaption>
+          </figure>
+          <figure>
+            <canvas id="gl-canvas3"></canvas>
+            <figcaption>
+              <b>Gradient Noise</b> — gradient를 이용한 perlin 노이즈
+            </figcaption>
+          </figure>
+        </div>
         <a class="back-link" href="../../">← 포트폴리오로 돌아가기</a>
       </section>
     </main>
