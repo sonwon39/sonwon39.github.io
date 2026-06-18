@@ -293,6 +293,11 @@ footer {
   font-size: 0.9rem;
 }
 
+/* 카드 안에서는 설명 아래에 태그를 붙인다 */
+.project-card__body .tags {
+  margin: 0.7rem 0 0;
+}
+
 /* ---- 상세 페이지: 기능 소개(이미지 + 설명) ---- */
 
 .feature {
@@ -303,11 +308,19 @@ footer {
   margin: 2rem 0;
 }
 
-.feature img {
+.feature img,
+.feature video {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: 8px;
   background: #000;
+}
+
+/* 같은 섹션 안에서 다음 기능을 윗선으로 살짝 구분한다 */
+.feature--divided {
+  border-top: 1px solid var(--border);
+  padding-top: 2.5rem;
+  margin-top: 2.5rem;
 }
 
 /* 한 기능에 이미지가 여러 장이면 세로로 쌓는다 */
