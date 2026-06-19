@@ -13,7 +13,7 @@
         document.documentElement.dataset.theme = t;
       })();
     </script>
-    <title>02. noise</title>
+    <title>03. cloud</title>
     <link rel="stylesheet" href="/src/style.css" />
     <style>
       /* 이 데모는 노이즈를 여러 개 나열하므로 본문 폭을 넓게 쓴다
@@ -52,40 +52,27 @@
   <body class="demo-page">
     <main class="container">
       <section>
-        <h2>02. Noise</h2>
+        <h2>03. Cloud</h2>
         <p>
-          여러 종류의 노이즈
+          구름을 만들기 위한 노이즈 빌딩 블록
         </p>
         <div class="noise-grid">
           <figure>
             <canvas id="gl-canvas0"></canvas>
             <figcaption>
-              <b>Random Noise</b> - 랜덤 노이즈
+              <b>FBM (Perlin)</b> — gradient noise를 7개 옥타브로 합성한 FBM(fractal Brownian motion)의 절댓값
             </figcaption>
           </figure>
           <figure>
             <canvas id="gl-canvas1"></canvas>
             <figcaption>
-              <b>Mosaic Noise</b> — 모자이크 노이즈
+              <b>Inverted Worley</b> — cellular noise를 뒤집은 결과로 셀 중심이 밝아져 뭉게구름 느낌
             </figcaption>
           </figure>
           <figure>
-            <canvas id="gl-canvas2"></canvas>
+            <canvas id="gl-canvas2" data-thumb></canvas>
             <figcaption>
-              <b>Value Noise</b> — 2차원 격자 보간을 이용한 Value 노이즈
-            </figcaption>
-          </figure>
-          <figure>
-            <!-- data-thumb: 이 캔버스를 데모의 대표 썸네일로 사용 (npm run thumbs) -->
-            <canvas id="gl-canvas3" data-thumb></canvas>
-            <figcaption>
-              <b>Gradient Noise</b> — gradient를 이용한 perlin 노이즈
-            </figcaption>
-          </figure>
-          <figure>
-            <canvas id="gl-canvas4"></canvas>
-            <figcaption>
-              <b>Worley Noise</b> — cellular 노이즈
+              <b>FBM (Worley)</b> — worley noise를 3개 옥타브로 합성한 FBM(fractal Brownian motion)을 뒤집어서 구름 느낌 생성
             </figcaption>
           </figure>
         </div>

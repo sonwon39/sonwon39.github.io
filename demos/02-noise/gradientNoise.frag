@@ -57,7 +57,7 @@ float noise(vec2 p)
 void main()
 {
     // [0, xRange), [0, yRange)
-    vec2 range = vec2(16.0, 16.0);
+    vec2 range = vec2(16.0);
     vec2 st = gl_FragCoord.xy / iResolution.xy * range;
     float color = noise(st);
     color = (color + 1.0)  * 0.5;

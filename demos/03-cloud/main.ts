@@ -6,25 +6,16 @@
 // 리소스는 컨텍스트 간에 공유할 수 없다. 그래서 "캔버스 하나에 필요한 모든 것"을
 // setupNoiseCanvas() 안에 캡슐화하고, 노이즈 종류마다 한 번씩 호출한다.
 import vertSource from './shader.vert?raw';
-import randomFrag from './randomNoise.frag?raw';
-import mosaicFrag from './mosaicNoise.frag?raw';
-import valueFrag from './valueNoise.frag?raw';
-import gradientFrag from './gradientNoise.frag?raw';
-import worleyFrag from './worleyNoise.frag?raw';
-
-// import truchetFrag from './truchetNoise.frag?raw';
-// import smoothFrag from './smoothNoise.frag?raw';
-// import fbmFrag from './fbm.frag?raw';
-// import worleyFrag from './worley.frag?raw';
+import perlinFBMFrag from './perlinFBM.frag?raw';
+import invWorleyFrag from './invWorleyNoise.frag?raw';
+import worleyFBMFrag from './worleyFBM.frag?raw';
 
 // (캔버스 id, 그 캔버스에 그릴 노이즈 셰이더) 목록.
 // 노이즈를 추가하려면 .frag를 만들고 여기에 한 줄, index.html에 캔버스 하나 추가하면 된다.
 const NOISES: { selector: string; frag: string }[] = [
-  { selector: '#gl-canvas0', frag: randomFrag },
-  { selector: '#gl-canvas1', frag: mosaicFrag },
-  { selector: '#gl-canvas2', frag: valueFrag },
-  { selector: '#gl-canvas3', frag: gradientFrag },
-  { selector: '#gl-canvas4', frag: worleyFrag }
+  { selector: '#gl-canvas0', frag: perlinFBMFrag },
+  { selector: '#gl-canvas1', frag: invWorleyFrag },
+  { selector: '#gl-canvas2', frag: worleyFBMFrag },
 ];
 
 // 화면을 덮는 사각형: 정점 4개 + 인덱스 6개(삼각형 2개)
