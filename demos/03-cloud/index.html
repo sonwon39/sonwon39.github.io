@@ -104,8 +104,8 @@
 
         <h3>최종 결과 — Cloud</h3>
         <p>
-          위 노이즈들을 합성한 최종 구름. Perlin FBM을 기본 밀도로 삼아 Worley FBM으로
-          디테일을 깎아낸(remap) 뒤, 대비를 끌어올려 구름 형태를 뽑아낸다.
+          위 노이즈들을 합성한 최종 구름. remap함수를 이용해 Perlin FBM을 기본 밀도로 삼아 Worley FBM으로
+          값을 끌어 뒤, 대비를 끌어올려 최종적으로 구름 형태를 얻었습니다.
         </p>
         <figure class="cloud-final">
           <canvas id="gl-canvas-cloud" data-thumb></canvas>
