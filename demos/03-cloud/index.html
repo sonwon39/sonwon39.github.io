@@ -47,6 +47,19 @@
       .noise-grid figcaption b {
         color: var(--text);
       }
+      /* 맨 아래 최종 결과(구름)는 빌딩 블록들을 합친 결과이므로
+         격자가 아니라 한 칸으로 넓고 크게 보여준다 */
+      .cloud-final {
+        margin: 2rem 0 0;
+      }
+      .cloud-final canvas {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: #000;
+      }
     </style>
   </head>
   <body class="demo-page">
@@ -60,22 +73,44 @@
           <figure>
             <canvas id="gl-canvas0"></canvas>
             <figcaption>
-              <b>FBM (Perlin)</b> — gradient noise를 7개 옥타브로 합성한 FBM(fractal Brownian motion)의 절댓값
+              <b>FBM (Perlin)</b> — gradient noise를 7개 옥타브로 합성한 FBM(fractal Brownian motion)
             </figcaption>
           </figure>
           <figure>
             <canvas id="gl-canvas1"></canvas>
             <figcaption>
-              <b>Inverted Worley</b> — cellular noise를 뒤집은 결과로 셀 중심이 밝아져 뭉게구름 느낌
+              <b>FBM (Perlin) 절댓값</b> — gradient noise를 3개 옥타브로 합성한 FBM의 절댓값
             </figcaption>
           </figure>
           <figure>
-            <canvas id="gl-canvas2" data-thumb></canvas>
+            <canvas id="gl-canvas2"></canvas>
             <figcaption>
-              <b>FBM (Worley)</b> — worley noise를 3개 옥타브로 합성한 FBM(fractal Brownian motion)을 뒤집어서 구름 느낌 생성
+              <b>Inverted Worley</b> — worley noise를 뒤집은 결과
+            </figcaption>
+          </figure>
+          <figure>
+            <canvas id="gl-canvas3" data-thumb></canvas>
+            <figcaption>
+              <b>FBM (Worley)</b> — worley noise를 3개 옥타브로 합성한 FBM(fractal Brownian motion)
+            </figcaption>
+          </figure>
+          <figure>
+            <canvas id="gl-canvas4"></canvas>
+            <figcaption>
+              <b>Perlin-Worley</b> — Perlin-Worley noise
             </figcaption>
           </figure>
         </div>
+
+        <h3>최종 결과 — Cloud</h3>
+        <p>
+          위 노이즈들을 합성한 최종 구름. Perlin FBM을 기본 밀도로 삼아 Worley FBM으로
+          디테일을 깎아낸(remap) 뒤, 대비를 끌어올려 구름 형태를 뽑아낸다.
+        </p>
+        <figure class="cloud-final">
+          <canvas id="gl-canvas-cloud"></canvas>
+        </figure>
+
         <a class="back-link" href="../../">← 포트폴리오로 돌아가기</a>
       </section>
     </main>

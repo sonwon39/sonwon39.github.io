@@ -6,16 +6,47 @@
 // 리소스는 컨텍스트 간에 공유할 수 없다. 그래서 "캔버스 하나에 필요한 모든 것"을
 // setupNoiseCanvas() 안에 캡슐화하고, 노이즈 종류마다 한 번씩 호출한다.
 import vertSource from './shader.vert?raw';
+import perlinNoiseFrag from './perlinNoise.frag?raw';
 import perlinFBMFrag from './perlinFBM.frag?raw';
 import invWorleyFrag from './invWorleyNoise.frag?raw';
 import worleyFBMFrag from './worleyFBM.frag?raw';
+import perlinWorleyFrag from './perlinWorley.frag?raw';
+import cloudFrag from './cloud.frag?raw';
+import commonGlsl from './common.glsl?raw';
+
+// 셰이더끼리 공유하는 함수 모음. #include "파일명" 으로 끌어다 쓴다.
+// 브라우저는 파일 시스템을 직접 못 읽으므로, 빌드 시점에 ?raw로 불러온
+// 문자열을 이 registry에 등록해두고 이름으로 찾는다. 공유 파일을 늘리려면
+// 여기 한 줄만 추가하면 된다.
+const SHADER_INCLUDES: Record<string, string> = {
+  'common.glsl': commonGlsl,
+};
+
+// 셰이더 소스의 #include "파일명" 줄을 실제 파일 내용으로 치환하는 작은 전처리기.
+// (#include 는 GLSL 표준 지시문이 아니라서, 컴파일 전에 우리가 직접 풀어줘야 한다.)
+// #version 지시문은 반드시 첫 줄이어야 하므로, #include 는 그 아래에 둔다.
+function resolveIncludes(source: string): string {
+  return source.replace(
+    /^[ \t]*#include\s+"([^"]+)"[ \t]*$/gm,
+    (_match, name: string) => {
+      const included = SHADER_INCLUDES[name];
+      if (included === undefined) {
+        throw new Error(`#include 대상을 찾을 수 없습니다: "${name}"`);
+      }
+      return resolveIncludes(included); // 중첩 #include 도 지원
+    },
+  );
+}
 
 // (캔버스 id, 그 캔버스에 그릴 노이즈 셰이더) 목록.
 // 노이즈를 추가하려면 .frag를 만들고 여기에 한 줄, index.html에 캔버스 하나 추가하면 된다.
 const NOISES: { selector: string; frag: string }[] = [
-  { selector: '#gl-canvas0', frag: perlinFBMFrag },
-  { selector: '#gl-canvas1', frag: invWorleyFrag },
-  { selector: '#gl-canvas2', frag: worleyFBMFrag },
+  { selector: '#gl-canvas0', frag: perlinNoiseFrag },
+  { selector: '#gl-canvas1', frag: perlinFBMFrag },
+  { selector: '#gl-canvas2', frag: invWorleyFrag },
+  { selector: '#gl-canvas3', frag: worleyFBMFrag },
+  { selector: '#gl-canvas4', frag: perlinWorleyFrag },
+  { selector: '#gl-canvas-cloud', frag: cloudFrag }
 ];
 
 // 화면을 덮는 사각형: 정점 4개 + 인덱스 6개(삼각형 2개)
@@ -50,8 +81,9 @@ function createProgram(
   fragSrc: string,
 ): WebGLProgram {
   const program = gl.createProgram();
-  gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER, vertSrc));
-  gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER, fragSrc));
+  // 컴파일 전에 #include 를 실제 함수 코드로 펼친다.
+  gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER, resolveIncludes(vertSrc)));
+  gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER, resolveIncludes(fragSrc)));
   gl.linkProgram(program);
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
     throw new Error(`프로그램 링크 실패:\n${gl.getProgramInfoLog(program)}`);

@@ -11,10 +11,7 @@ out vec4 outColor;
 
 void main()
 {
-    vec2 uv = gl_FragCoord.xy / iResolution.y;
-    
-    float p = gFbm(vec3(uv,0.)*.5, freq, 7);
-    float c = abs(p);
-
+    vec2 uv = gl_FragCoord.xy / iResolution.xy;
+    float c = gFbm(vec3(uv, 0.0), freq, 7) * 0.5 + 0.5;
     outColor = vec4(vec3(c),1.0);
 }
