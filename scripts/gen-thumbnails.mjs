@@ -32,8 +32,9 @@ if (!executablePath) {
 }
 
 // 1. 데모 폴더 자동 수집
+// `_`로 시작하는 폴더는 페이지가 아니라 공용 리소스 모음(예: _shared)이라 제외한다.
 const demos = readdirSync(resolve(root, 'demos'), { withFileTypes: true })
-  .filter((e) => e.isDirectory())
+  .filter((e) => e.isDirectory() && !e.name.startsWith('_'))
   .map((e) => e.name)
   .sort();
 

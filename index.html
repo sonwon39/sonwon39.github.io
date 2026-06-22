@@ -21,9 +21,7 @@
     <header class="hero">
       <div class="container">
         <h1>손형원 <small>Hyeongwon Son</small></h1>
-        <p class="tagline">
-          공부한 것을 직접 구현해 보며 기록한 블로그
-        </p>
+        <p class="tagline">공부한 것을 직접 구현해 보며 기록한 블로그</p>
       </div>
     </header>
 
@@ -37,9 +35,9 @@
         </p>
         <p>
           이 블로그는 그렇게 만든 결과물을 한곳에 모아 둔 포트폴리오입니다.
-          <a href="#projects">Projects</a>에는 직접 만든 프로젝트들을, 
-          <a href="#webgl">WebGL</a>에는 브라우저에서 바로
-          돌려볼 수 있는 작은 렌더링 실험들을 정리해 두었습니다.
+          <a href="#projects">Projects</a>에는 직접 만든 프로젝트들을,
+          <a href="#webgl">WebGL</a>에는 브라우저에서 바로 돌려볼 수 있는 작은
+          렌더링 실험들을 정리해 두었습니다.
         </p>
       </section>
 
@@ -113,9 +111,7 @@
 
       <section id="webgl">
         <h2>WebGL</h2>
-        <p>
-          브라우저에서 바로 실행되는 WebGL2 렌더링 데모
-        </p>
+        <p>브라우저에서 바로 실행되는 WebGL2 렌더링 데모</p>
         <!-- 새 데모: public/demos/<이름>.jpg 썸네일을 넣고 카드를 추가한다 -->
         <div class="card-grid">
           <a class="project-card" href="demos/01-pbr/">
@@ -140,10 +136,14 @@
             </div>
           </a>
           <a class="project-card" href="demos/04-volume/">
-            <img src="/demos/03-volume.jpg" alt="volume rendering" loading="lazy" />
+            <img
+              src="/demos/04-volume.jpg"
+              alt="volume rendering"
+              loading="lazy"
+            />
             <div class="project-card__body">
-              <h3>Noise를 이용한 cloud</h3>
-              <p>perlin + worley noise 를 이용한 cloud</p>
+              <h3>ray-marching을 이용한 volume 렌더링</h3>
+              <p>ray-marching을 이용한 clouds volume 렌더링</p>
             </div>
           </a>
         </div>
@@ -152,14 +152,17 @@
       <section id="contact">
         <h2>Contact</h2>
         <p>
-          GitHub: <a href="https://github.com/sonwon39">github.com/sonwon39</a><br />
+          GitHub: <a href="https://github.com/sonwon39">github.com/sonwon39</a
+          ><br />
           Email: <a href="mailto:sonwon39@naver.com">sonwon39@naver.com</a>
         </p>
       </section>
     </main>
 
     <footer>
-      <div class="container">© 2026 Hyeongwon Son · Built with Vite + WebGL</div>
+      <div class="container">
+        © 2026 Hyeongwon Son · Built with Vite + WebGL
+      </div>
     </footer>
     <script type="module" src="/src/theme.ts"></script>
   </body>

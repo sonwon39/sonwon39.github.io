@@ -12,14 +12,14 @@ import invWorleyFrag from './invWorleyNoise.frag?raw';
 import worleyFBMFrag from './worleyFBM.frag?raw';
 import perlinWorleyFrag from './perlinWorley.frag?raw';
 import cloudFrag from './cloud.frag?raw';
-import commonGlsl from './common.glsl?raw';
+import noiseGlsl from '../_shared/noise.glsl?raw';
 
 // 셰이더끼리 공유하는 함수 모음. #include "파일명" 으로 끌어다 쓴다.
 // 브라우저는 파일 시스템을 직접 못 읽으므로, 빌드 시점에 ?raw로 불러온
 // 문자열을 이 registry에 등록해두고 이름으로 찾는다. 공유 파일을 늘리려면
 // 여기 한 줄만 추가하면 된다.
 const SHADER_INCLUDES: Record<string, string> = {
-  'common.glsl': commonGlsl,
+  'noise.glsl': noiseGlsl,
 };
 
 // 셰이더 소스의 #include "파일명" 줄을 실제 파일 내용으로 치환하는 작은 전처리기.

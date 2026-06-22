@@ -7,7 +7,7 @@ uniform vec2  iResolution;
 
 out vec4 outColor;
 
-#include "common.glsl"
+#include "noise.glsl"
 
 void main()
 {
