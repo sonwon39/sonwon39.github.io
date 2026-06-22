@@ -11,13 +11,13 @@ uniform vec2 iResolution;
 
 out vec4 outColor;
 
-// 텍스처가 커버하는 월드 공간 박스 (공통값: common.glsl과 일치해야 함)
-const vec3 BOUNDS_MIN = vec3(-2.0, -2.0, 0.0);
-const vec3 BOUNDS_SIZE = vec3(4.0, 4.0, 4.0);
-
 void main() {
   vec2 uv = gl_FragCoord.xy / iResolution; // [0,1]
-  vec3 p = BOUNDS_MIN + vec3(uv, uZSlice) * BOUNDS_SIZE;
-  float n = clamp(perlinWorleyNoise(p, 4.0), 0.0, 1.0);
-  outColor = vec4(n); // R8 포맷이라 .r만 저장됨
+  vec3 p = vec3(uv, uZSlice);
+  //
+  float R = clamp(perlinWorleyNoise(p * 2.0, 4.0), 0.0, 1.0);
+  float G = clamp(cloudNoise(p * 2.0, 4.0), 0.0, 1.0);
+  float B = clamp(worleyFbm(p, 4.0), 0.0, 1.0);
+  float A = clamp(abs(gFbm(p, 4.0, 7)), 0.0, 1.0);
+  outColor = vec4(R, G, B, A); // R8 포맷이라 .r만 저장됨
 }

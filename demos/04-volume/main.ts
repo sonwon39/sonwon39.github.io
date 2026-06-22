@@ -4,9 +4,9 @@ import bakeFragSource from './bake.frag?raw';
 import commonGlsl from './common.glsl?raw';
 import noiseGlsl from '../_shared/noise.glsl?raw';
 
-const canvas = document.querySelector<HTMLCanvasElement>('#gl-canvas')
+const canvas = document.querySelector<HTMLCanvasElement>('#gl-canvas');
 if (!canvas) throw new Error('#gl-canvas 캔버스를 찾을 수 없습니다.');
-const gl  = canvas.getContext('webgl2')
+const gl = canvas.getContext('webgl2');
 if (!gl) throw new Error('이 브라우저는 WebGL2를 지원하지 않습니다.');
 
 const SHADER_INCLUDES: Record<string, string> = {
@@ -27,15 +27,20 @@ function resolveIncludes(source: string): string {
   );
 }
 
+// 노트북 GPU에서 raymarching이 너무 무거워서, 내부 drawing buffer를
+// CSS 표시 크기의 절반으로 줄인다. 픽셀 수 1/4로 감소 → ~4배 빨라짐.
+// 브라우저가 캔버스를 표시할 때 CSS 크기에 맞춰 자동으로 업스케일해 줘서,
+// 약간 부드러워 보일 뿐 큰 시각적 차이는 없다.
+const RENDER_SCALE = 0.5;
+
 function resizeCanvas() {
   const dpr = window.devicePixelRatio;
-  const width = Math.round(canvas!.clientWidth * dpr);
-  const height = Math.round(canvas!.clientWidth * 0.75 * dpr); // 4:3 비율
+  const width = Math.round(canvas!.clientWidth * dpr * RENDER_SCALE);
+  const height = Math.round(canvas!.clientWidth * 0.75 * dpr * RENDER_SCALE); // 4:3 비율
   canvas!.width = width;
   canvas!.height = height;
   gl!.viewport(0, 0, width, height);
 }
-
 
 function compileShader(
   gl: WebGL2RenderingContext,
@@ -61,8 +66,14 @@ function createProgram(
 ): WebGLProgram {
   const program = gl.createProgram();
   // 컴파일 전에 #include 를 실제 함수 코드로 펼친다.
-  gl.attachShader(program, compileShader(gl, gl.VERTEX_SHADER, resolveIncludes(vertSrc)));
-  gl.attachShader(program, compileShader(gl, gl.FRAGMENT_SHADER, resolveIncludes(fragSrc)));
+  gl.attachShader(
+    program,
+    compileShader(gl, gl.VERTEX_SHADER, resolveIncludes(vertSrc)),
+  );
+  gl.attachShader(
+    program,
+    compileShader(gl, gl.FRAGMENT_SHADER, resolveIncludes(fragSrc)),
+  );
   gl.linkProgram(program);
   if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
     throw new Error(`프로그램 링크 실패:\n${gl.getProgramInfoLog(program)}`);
@@ -74,15 +85,16 @@ const program = createProgram(gl, vertSource, fragSource);
 const bakeProgram = createProgram(gl, vertSource, bakeFragSource);
 
 const vertices = new Float32Array([
-  //  x     y   
-   -1.0,  1.0,
-   -1.0, -1.0,
-    1.0, -1.0,
-    1.0,  1.0
+  //  x     y
+  -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0,
 ]);
 const indices = new Uint16Array([
-  0, 1, 2, // 삼각형 1
-  0, 2, 3, // 삼각형 2
+  0,
+  1,
+  2, // 삼각형 1
+  0,
+  2,
+  3, // 삼각형 2
 ]);
 
 const FLOAT_SIZE = 4; // float 1개 = 4바이트
@@ -109,7 +121,7 @@ const BAKE_SIZE = 64;
 
 const noiseTex = gl.createTexture();
 gl.bindTexture(gl.TEXTURE_3D, noiseTex);
-gl.texStorage3D(gl.TEXTURE_3D, 1, gl.R8, BAKE_SIZE, BAKE_SIZE, BAKE_SIZE);
+gl.texStorage3D(gl.TEXTURE_3D, 1, gl.RGBA8, BAKE_SIZE, BAKE_SIZE, BAKE_SIZE);
 // 트라이리니어 보간 + 박스 밖은 텍스처가 무한 타일링 (REPEAT)
 // → iTime을 더해서 좌표가 박스 밖으로 나가도 자동으로 wrap 됨
 gl.texParameteri(gl.TEXTURE_3D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -159,7 +171,7 @@ const iResolutionLoc = gl.getUniformLocation(program, 'iResolution');
 function render(timeMs: number) {
   gl!.clearColor(0.08, 0.08, 0.1, 1.0);
   gl!.clear(gl!.COLOR_BUFFER_BIT);
-  
+
   gl!.useProgram(program);
   gl!.uniform1f(iTimeLoc, timeMs * 0.001);
   gl!.uniform2f(iResolutionLoc, canvas!.width, canvas!.height);
