@@ -33,10 +33,13 @@ float volume_scene(vec3 p) {
   float sphere = sdfSphere(p, vec3(0.0, 0.0, 2.0), 1.0);
   vec3 noisePos = p;
   noisePos.xy += iTime;
-  vec4 noise = sampleNoise(noisePos * 0.5);
-  //float cloud = sampleNoise(noisePos * 0.5);
-  //float pwbm = sampleNoise(noisePos * 0.5);
-  return -sphere + f;
+  vec4 noise0 = sampleNoise(noisePos * 0.5);
+  vec4 noise1 = sampleNoise(noisePos);
+  float pwFbm = noise0.r;
+  float cloud = noise0.g;
+  float wFbm = noise1.b;
+  float perlin = noise0.a;
+  return -sphere + pwFbm;
 }
 
 float raymarch(vec3 ro, vec3 rd) {
