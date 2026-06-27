@@ -1,5 +1,5 @@
 import vertSource from './shader.vert?raw';
-import fragSource from './shader.frag?raw';
+import fragSource from './horizon.frag?raw';
 import bakeFragSource from '../_shared/bakeNoise.frag?raw';
 import commonGlsl from './common.glsl?raw';
 import noiseGlsl from '../_shared/noise.glsl?raw';

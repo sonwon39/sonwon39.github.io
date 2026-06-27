@@ -19,7 +19,7 @@ function collectPages(dir: string) {
 export default defineConfig({
   // Windows가 5001~5200 포트 범위를 예약해(Hyper-V/WSL 등) vite 기본 포트 5173에
   // 바인딩하면 EACCES(권한 거부)가 난다. 예약 범위 밖 포트로 고정한다.
-  server: { port: 5300 },
+  server: { port: 5301 },
   build: {
     rollupOptions: {
       input: {

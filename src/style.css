@@ -407,13 +407,55 @@ footer {
   font-family: ui-monospace, "SF Mono", Consolas, "Courier New", monospace;
 }
 
-/* 앵커 점프 시 헤더 위에 약간 여유 — 추후 sticky 헤더 도입 대비 */
+/* 앵커 점프 시 sticky 상단 네비에 가리지 않도록 여유 */
 section[id] {
-  scroll-margin-top: 1rem;
+  scroll-margin-top: 4rem;
 }
 
 html {
   scroll-behavior: smooth;
+}
+
+/* ---- 상세/데모 페이지 상단 네비 (sticky) ---- */
+
+.topnav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.topnav__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+  /* 우상단 고정 테마 토글(.theme-toggle)과 겹치지 않도록 오른쪽 여유 */
+  padding-right: 3.6rem;
+}
+
+.topnav__home {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.topnav__sections {
+  display: flex;
+  gap: 1.2rem;
+  font-size: 0.95rem;
+}
+
+.topnav__sections a {
+  color: var(--text-dim);
+}
+
+.topnav__home:hover,
+.topnav__sections a:hover {
+  color: var(--accent);
+  text-decoration: none;
 }
 
 /* ---- 데모 / 상세 공통 ---- */

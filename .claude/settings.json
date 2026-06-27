@@ -6,8 +6,8 @@
       "Edit",
       "WebFetch",
       "WebSearch",
-      "PowerShell",
-      "Bash"
+      "PowerShell(*)",
+      "Bash(*)"
     ],
     "deny": []
   }
