@@ -72,7 +72,6 @@ float gnoise(vec3 p, float freq) {
 }
 
 float gFbm(vec3 st, float freq, const int octaves) {
-  float G = exp2(-0.85);
   float amp = 1.0;
   float sum = 0.0;
   float norm = 0.0;
@@ -81,7 +80,7 @@ float gFbm(vec3 st, float freq, const int octaves) {
     sum += amp * gnoise(st * freq, freq);
     norm += amp;
     freq *= 2.0;
-    amp *= G;
+    amp *= 0.5;
   }
   //return clamp((sum / norm) * 0.5 + 0.5, 0.0, 1.0);
   return sum;

@@ -11,8 +11,10 @@ out vec4 fragColor;
 void main() {
     vec3 ro, rd;
     getRay(gl_FragCoord.xy, iResolution.xy, ro, rd);
+    float time = iTime;
+    //time = 0.;
 
-    vec3 col = raymarch(ro, rd, iTime);
+    vec3 col = raymarch(ro, rd, time);
     //col = mix(col, pow(col, vec3(1./2.2)), 0.85);
     col = pow(clamp(col,0.,1.), vec3(0.85));  
     fragColor = vec4(col, 1.);

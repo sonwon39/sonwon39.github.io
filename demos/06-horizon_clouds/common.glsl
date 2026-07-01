@@ -1,193 +1,184 @@
-#include "noise.glsl"
-#include "raymarch.glsl"
+#define SCENE_SCALE (10.)
+#define INV_SCENE_SCALE (.1)
 
-// 미리 구워둔 노이즈 3D 텍스처. main.ts가 시작할 때 한 번
-uniform highp sampler3D uNoise;
-vec4 sampleNoise(vec3 p) {
-  return texture(uNoise, p);
+#define SUN_DIR normalize(vec3(0.,.8,.75))
+#define SUN_COLOR (vec3(1.,.9,.85)*1.4)
+
+#define CAMERA_RO (vec3(3980.,730.,-2650.)*INV_SCENE_SCALE)
+#define CAMERA_FL 2.
+
+#define HEIGHT_BASED_FOG_B 0.02
+#define HEIGHT_BASED_FOG_C 0.05
+
+mat3 rotateZ(float theta)
+{
+    vec3 x = vec3(cos(theta), sin(theta), 0.);
+    vec3 y = vec3(-sin(theta), cos(theta), 0.);
+    vec3 z = vec3(0.,0.,1.);
+    return mat3(x,y,z);
+}
+mat3 rotateY(float theta)
+{
+    vec3 x = vec3(cos(theta), 0., sin(theta));
+    vec3 y = vec3(0.,1.,0.);
+    vec3 z = vec3(-sin(theta), 0., cos(theta));
+    return mat3(x,y,z);
 }
 
-
-#define COVERAGE    0.50        // how much of the sky is covered (0..1)
-#define THICKNESS   15.0        // vertical thickness of the cloud slab
-#define ABSORPTION  1.030725    // how strongly clouds absorb light
-#define STEPS       25          // raymarch steps through the slab
-#define FBM_FREQ    2.76434     // lacunarity of the fractal noise
-
-// Clouds drift over time. Set to vec3(0.0) to freeze them.
-#define WIND        vec3(0.0, 0.0, -iTime * 0.2)
-
-// Fixed sun direction (was animated with time in the original).
-#define SUN_DIR     normalize(vec3(0.0, 0.6, -1.0))
-
-const float MAX_DIST = 1e8;
-
-
-// ------------------------------- Types --------------------------------------
-struct ray_t    { vec3 origin; vec3 direction; };
-struct sphere_t { vec3 origin; float radius; int material; };
-struct plane_t  { vec3 direction; float distance; int material; };
-struct hit_t    { float t; int material_id; vec3 normal; vec3 origin; };
-
-hit_t make_no_hit() {
-    return hit_t(MAX_DIST + 1.0, -1, vec3(0.0), vec3(0.0));
+float hash(vec3 p3) {
+    p3  = fract(p3 * 0.1031);
+    p3 += dot(p3, p3.yzx + 19.19);
+    return fract((p3.x + p3.y) * p3.z);
 }
-
-
-// ------------------------------- Camera -------------------------------------
-ray_t get_primary_ray(vec3 cam_local_point, vec3 cam_origin, vec3 cam_look_at) {
-    vec3 fwd   = normalize(cam_look_at - cam_origin);
-    vec3 up    = vec3(0.0, 1.0, 0.0);
-    vec3 right = cross(up, fwd);
-    up = cross(fwd, right);
-    return ray_t(
-        cam_origin,
-        normalize(fwd + up * cam_local_point.y + right * cam_local_point.x)
-    );
+float hash13(vec3 p3) {
+    p3  = fract(p3 * 1031.1031);
+    p3 += dot(p3, p3.yzx + 19.19);
+    return fract((p3.x + p3.y) * p3.z);
 }
-
-
-// --------------------- Ray / surface intersections --------------------------
-// Ray-sphere (geometric solution).
-void intersect_sphere(ray_t ray, sphere_t sphere, inout hit_t hit) {
-    vec3  rc      = sphere.origin - ray.origin;
-    float radius2 = sphere.radius * sphere.radius;
-    float tca     = dot(rc, ray.direction);
-    float d2      = dot(rc, rc) - tca * tca;
-    if (d2 > radius2) return;
-
-    float thc = sqrt(radius2 - d2);
-    float t0  = tca - thc;
-    float t1  = tca + thc;
-
-    if (t0 < 0.0)     t0 = t1;
-    if (t0 > hit.t)   return;
-
-    vec3 impact = ray.origin + ray.direction * t0;
-    hit.t           = t0;
-    hit.material_id = sphere.material;
-    hit.origin      = impact;
-    hit.normal      = (impact - sphere.origin) / sphere.radius;
+vec3 hash33(vec3 p3) {
+	p3 = fract(p3 * vec3(.1031, .1030, .0973));
+    p3 += dot(p3, p3.yxz+19.19);
+    return fract((p3.xxy + p3.yxx)*p3.zyx);
 }
-
-// Ray-plane:  t = ((P0 - O) . N) / (N . D)
-void intersect_plane(ray_t ray, plane_t p, inout hit_t hit) {
-    float denom = dot(p.direction, ray.direction);
-    if (denom < 1e-6) return;
-
-    vec3  P0 = vec3(p.distance);
-    float t  = dot(P0 - ray.origin, p.direction) / denom;
-    if (t < 0.0 || t > hit.t) return;
-
-    hit.t           = t;
-    hit.material_id = p.material;
-    hit.origin      = ray.origin + ray.direction * t;
-    hit.normal      = faceforward(p.direction, ray.direction, p.direction);
-}
-
-float checkboard_pattern(vec2 pos, float scale) {
-    vec2 pattern = floor(pos * scale);
-    return mod(pattern.x + pattern.y, 2.0);
-}
-
-
-// ------------------------------- Noise --------------------------------------
-// Value noise by iq (analytic / texture-free variant).
-float hash(float n) {
-    return fract(sin(n) * 753.5453123);
-}
-
-float noise_iq(vec3 x) {
+float wnoise( vec3 x, float tile ) {
     vec3 p = floor(x);
     vec3 f = fract(x);
-    f = f * f * (3.0 - 2.0 * f);
 
-    float n = p.x + p.y * 157.0 + 113.0 * p.z;
-    return mix(mix(mix(hash(n +   0.0), hash(n +   1.0), f.x),
-                   mix(hash(n + 157.0), hash(n + 158.0), f.x), f.y),
-               mix(mix(hash(n + 113.0), hash(n + 114.0), f.x),
-                   mix(hash(n + 270.0), hash(n + 271.0), f.x), f.y), f.z);
+    float res = 100.;
+    for(int k=-1; k<=1; k++){
+        for(int j=-1; j<=1; j++) {
+            for(int i=-1; i<=1; i++) {
+                vec3 offset = vec3(i, j, k);
+                vec3 r =offset - f + hash13(mod(offset + p, vec3(tile)));
+                res = min(res, dot(r, r));
+            }
+        }
+    }
+      return 1. - res;
 }
 
-#define noise(x) noise_iq(x)
+float vnoise( in vec3 x, float freq ) {
+    vec3 p = floor(x);
+    vec3 f = fract(x);
+    vec3 u = f*f*(3.0-2.0*f);
+	
+    return mix(mix(mix( hash(mod(p+vec3(0,0,0),freq)), 
+                        hash(mod(p+vec3(1,0,0),freq)),u.x),
+                   mix( hash(mod(p+vec3(0,1,0),freq)), 
+                        hash(mod(p+vec3(1,1,0),freq)),u.x),u.y),
+               mix(mix( hash(mod(p+vec3(0,0,1),freq)), 
+                        hash(mod(p+vec3(1,0,1),freq)),u.x),
+                   mix( hash(mod(p+vec3(0,1,1),freq)), 
+                        hash(mod(p+vec3(1,1,1),freq)),u.x),u.y),
+                        u.z);
+}
+vec3 gradientDir( vec3 ip, float tile ) {
+    if( tile > 0. ) ip = mod( ip, vec3(tile) );
+    return normalize( hash33(ip) - 0.5 );
+}
+float gnoise( vec3 x, float freq ) {
+    vec3 i = floor(x);
+    vec3 f = fract(x);
+    vec3 u = f*f*(3.0-2.0*f);   // 5차 대신 3차 보간 (기존 노이즈들과 톤 맞춤)
 
-
-// -------------------------- Fractal Brownian Motion -------------------------
-float fbm(vec3 pos, float lacunarity) {
-    vec3 p = pos;
-    float t;
-    t  = 0.51749673 * noise(p); p *= lacunarity;
-    t += 0.25584929 * noise(p); p *= lacunarity;
-    t += 0.12527603 * noise(p); p *= lacunarity;
-    t += 0.06255931 * noise(p);
-    return t;
+    return mix(
+        mix( mix( dot( gradientDir(i+vec3(0,0,0),freq), f-vec3(0,0,0) ),
+                  dot( gradientDir(i+vec3(1,0,0),freq), f-vec3(1,0,0) ), u.x),
+             mix( dot( gradientDir(i+vec3(0,1,0),freq), f-vec3(0,1,0) ),
+                  dot( gradientDir(i+vec3(1,1,0),freq), f-vec3(1,1,0) ), u.x), u.y),
+        mix( mix( dot( gradientDir(i+vec3(0,0,1),freq), f-vec3(0,0,1) ),
+                  dot( gradientDir(i+vec3(1,0,1),freq), f-vec3(1,0,1) ), u.x),
+             mix( dot( gradientDir(i+vec3(0,1,1),freq), f-vec3(0,1,1) ),
+                  dot( gradientDir(i+vec3(1,1,1),freq), f-vec3(1,1,1) ), u.x), u.y), u.z);
 }
 
-float get_noise(vec3 x) {
-    return fbm(x, FBM_FREQ);
+float wFbm(vec3 p, float freq, const int octaves) {
+  float amp = 1.0;
+  float sum = 0.0;
+  float norm = 0.0;
+  for (int i = 0; i < octaves; i++) {
+    sum += amp * wnoise(p* freq, freq);
+    norm += amp;
+    freq *= 2.0;
+    amp *= 0.5;
+  }
+  return sum / norm;
 }
 
-
-// ------------------------------- Sky ----------------------------------------
-const vec3 sun_color = vec3(1.0, 0.7, 0.55);
-
-vec3 render_sky_color(ray_t eye) {
-    vec3  rd         = eye.direction;
-    float sun_amount = max(dot(rd, SUN_DIR), 0.0);
-
-    vec3 sky = mix(vec3(0.0, 0.1, 0.4), vec3(0.3, 0.6, 0.8), 1.0 - rd.y);
-    sky += sun_color * min(pow(sun_amount, 1500.0) * 5.0, 1.0);  // sharp sun disk
-    sky += sun_color * min(pow(sun_amount,   10.0) * 0.6, 1.0);  // soft glow
-    return sky;
+float fbm(vec3 p, float freq, const int octaves) {
+  float amp = 1.0;
+  float sum = 0.0;
+  float norm = 0.0;
+  for (int i = 0; i < octaves; i++) {
+    sum += amp * vnoise(p* freq, freq);
+    norm += amp;
+    freq *= 2.0;
+    amp *= 0.5;
+  }
+  return sum / norm;
 }
 
-
-// ----------------------------- Cloud density --------------------------------
-float density(vec3 pos, vec3 offset) {
-    vec3  p    = pos * 0.0212242 + offset;
-    float dens = get_noise(p);
-    //dens = sampleNoise(p * 0.5).g;
-    float cov = 1.0 - COVERAGE;
-    dens *= smoothstep(cov, cov + 0.05, dens);   // carve out the gaps
-    return clamp(dens, 0.0, 1.0);
+mat3 getCamera( in float time, inout vec3 ro) {
+    ro = CAMERA_RO;
+    vec3 cz = normalize(vec3(0.,.4,1.));
+    mat3 M = rotateY(time);
+    //cz = normalize(M * cz);
+    vec3 up = vec3(0.,1.,0.);
+    vec3 cx = normalize(cross(up, cz));
+    vec3 cy = normalize(cross(cz, cx));
+    return mat3(cx, cy, cz);
 }
 
+void getRay( in float time, in vec2 fragCoord, in vec2 resolution, inout vec3 ro, inout vec3 rd) {
+	mat3 cam = getCamera(time, ro);
+    vec2 p = (-resolution.xy + 2.0*(fragCoord))/resolution.y;
+    rd = cam * normalize(vec3(p,CAMERA_FL));     
+}
+vec3 getSunDir(float time){
+    return rotateZ(time) * SUN_DIR;
+}
 
-// -------------------- Volumetric cloud raymarch -----------------------------
-vec4 render_clouds(ray_t eye) {
-    // The clouds live on the inside of a big sphere -> gives the curved horizon.
-    sphere_t atmosphere = sphere_t(vec3(0.0, -0.0, 0.0), 500.0, 0);
+vec3 getSkyColor(vec3 rd, float time){
+    vec3 L = getSunDir(time);
+    float sundot = clamp(dot(L, rd), 0., 1.);
 
-    hit_t hit = make_no_hit();
-    intersect_sphere(eye, atmosphere, hit);
+    float y= max(rd.y, 0.);
+	vec3 col = clamp(vec3(0.2,0.5,0.85)- y*y*0.5, 0., 1.);
+    col = mix( col, 0.85*vec3(0.7,0.75,0.85), pow(1.0-y, 6.0) );
 
-    float march_step = THICKNESS / float(STEPS);
-    // Step along the view ray, normalized so each step covers a constant height.
-    vec3  dir_step   = eye.direction / eye.direction.y * march_step;
-    vec3  pos        = hit.origin;
+    col += 0.25 * vec3(1.0,0.7,0.4) * pow( sundot, 5.0 );
+    col += 0.25 * vec3(1.0,0.8,0.6) * pow( sundot, 64.0 );
+    col += 0.2  * vec3(1.0,0.8,0.6) * pow( sundot, 512.0 );
+    col += 0.2  * vec3(1.0,0.8,0.6) * pow( sundot, 8.0 );
+    
+    col += clamp((0.1-rd.y)*10., 0., 1.) * vec3(.0,.1,.2);
+    return col;
+}
 
-    float T     = 1.0;        // transmittance
-    vec3  C     = vec3(0.0);  // accumulated colour
-    float alpha = 0.0;
+float remap( float v, float oldLo, float oldHi, float newLo, float newHi ) {
+    return newLo + (v - oldLo) * (newHi - newLo) / (oldHi - oldLo);
+}
+#define PERLIN_FBM_GAIN 1.5
+float gFbm( vec3 p, float freq, const int octaves ) {
+    float f = 1.;
+    float a = 1.;
+    float c = 0.;
+    float w = 0.;
 
-    for (int i = 0; i < STEPS; i++) {
-        float h    = float(i) / float(STEPS);
-        float dens = density(pos, WIND);
+    if( freq > 0. ) f = freq;
 
-        float T_i = exp(-ABSORPTION * dens * march_step);
-        T *= T_i;
-        if (T < 0.01) break;
-
-        // Fake light: brighter towards the top of the slab (exp(h)).
-        C     += T * (exp(h) / 1.75) * dens * march_step;
-        alpha += (1.0 - T_i) * (1.0 - alpha);
-
-        pos += dir_step;
-        if (length(pos) > 1e3) break;
+    for( int i=0; i<octaves; i++ ) {
+        c += a*gnoise( p * f, f );
+        f *= 2.0;
+        w += a;
+        a *= 0.5;
     }
 
-    return vec4(C, alpha);
+    return clamp( 0.5 + PERLIN_FBM_GAIN * (c / w), 0., 1. );
 }
 
-
-
+float perlinWorley( vec3 p, const int perlinOct, const int worleyOct, float tile ) {
+    float perlin = gFbm( p, tile, perlinOct );
+    float worley = wFbm( p,tile * 2., worleyOct );   // 이미 [0,1], 1-거리² 형태
+    return clamp( remap( perlin, worley - 1.0, 1.0, 0.0, 1.0 ), 0., 1. );
+}
